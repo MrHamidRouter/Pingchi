@@ -20,7 +20,7 @@ This Bash script is designed to automatically resolve IPv6 issues on Linux syste
 To install and run this script on your Linux system, follow these steps:
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/MrHamidRouter/IPv6-AutoFix/main/IP6AutoFix.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/MrHamidRouter/Pingchi/main/Pingchi.sh)
 ```
     
 Follow the prompts to enter the IPv6 address of your VPN server and the interval for checking the IPv6 connection.
