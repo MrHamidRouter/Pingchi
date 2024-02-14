@@ -1,4 +1,4 @@
-# IPv6 AutoFix Script ver : 0.2
+# PingChi AutoPing Script ver : 0.8
 
 [English](README.md) | [فارسی](README-Fa.md)
 
