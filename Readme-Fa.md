@@ -1,4 +1,4 @@
-# اسکریپت خودکار تعمیر IPv6
+# اسکریپت پینگ چی -پینگ خودکارDomain IPv4 IPv6
 
 [English](README.md) | [فارسی](README-Fa.md)
 
