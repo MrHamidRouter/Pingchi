@@ -12,7 +12,7 @@
 
 ## نصب
 
-
+![Screenshot 2024-02-09 021951](https://github.com/MrHamidRouter/IPv6-AutoFix/assets/155462614/8012f009-316d-4f72-8554-009f906b9cbb)
 
  ### توجه فرمایید هنگام نصب اسکریپت دقت نمایید تا با مشکلی روبرو نشوید در عکس بالا بصورت واضع نشان دادیم
  
@@ -20,7 +20,7 @@
 
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/MrHamidRouter/IPv6-AutoFix/main/IP6AutoFix.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/MrHamidRouter/Pingchi/main/Pingchi.sh)
 ```
 
 ## حمایت 
