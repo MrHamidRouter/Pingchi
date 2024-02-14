@@ -13,8 +13,36 @@ domain_log="$log_directory/domain.log"
 # Create log directory if not exist
 mkdir -p "$log_directory"
 
-# Function for scheduling and pinging
-schedule_and_ping() {
+# Function for scheduling and pinging IPv6
+schedule_and_ping_ipv6() {
+    target="$1"
+    logfile="$2"
+    timing="$3"
+
+    # Execute ping command for the target and save results to log file
+    ping_result=$(ping6 -c 1 "$target")
+    if [ $? -eq 0 ]; then
+        echo "$(date): $ping_result" >> "$logfile"
+        echo -e "\e[1;36mPing command executed for $target every $timing and results saved in $logfile.\e[0m"
+    else
+        echo "$(date): Ping to $target timed out." >> "$logfile"
+        echo -e "\e[1;31mPing to $target timed out.\e[0m"
+
+        # If IPv6 ping fails, execute dhclient6 to establish IPv6 connection
+        echo -e "\e[1;33mExecuting DHClient6 to establish IPv6 connection.\e[0m"
+        dhclient6
+    fi
+
+    # Check log file size and rotate if necessary
+    log_size=$(wc -c <"$logfile")
+    if [ $log_size -gt 1048576 ]; then  # 1 MB in bytes
+        mv "$logfile" "$logfile.old"
+        echo -e "\e[1;33mLog file exceeded size limit. Rotated the log file.\e[0m"
+    fi
+}
+
+# Function for scheduling and pinging domains
+schedule_and_ping_domain() {
     target="$1"
     logfile="$2"
     timing="$3"
@@ -39,40 +67,52 @@ schedule_and_ping() {
 
 # Install submenu
 install_submenu() {
-    clear
-    echo -e "\e[1;35mInstall Submenu:\e[0m"
-    echo -e "\e[1;32m1. Install IPv4\e[0m"
-    echo -e "\e[1;33m2. Install IPv6\e[0m"
-    echo -e "\e[1;34m3. Install Domain\e[0m"
-    read -p "Please select an option: " choice
+    while true; do
+        clear
+        echo -e "\e[1;35mInstall Submenu:\e[0m"
+        echo -e "\e[1;32m1. Install IPv4\e[0m"
+        echo -e "\e[1;33m2. Install IPv6 (Ping Only)\e[0m"
+        echo -e "\e[1;34m3. Install IPv6 (dhclient6)\e[0m"
+        echo -e "\e[1;35m4. Install Domain\e[0m"
+        echo -e "\e[1;31m5. Back to Previous Menu\e[0m"
+        read -p "Please select an option: " choice
 
-    case $choice in
-        1)
-            echo -e "\e[1;32mEnter IPv4 Address:\e[0m"
-            read ipv4_address
-            read -p "Set timing for IPv4 ping (e.g., 1m for 1 minute, 1h for 1 hour, 1d for 1 day, 1M for 1 month): " ipv4_timing
-            schedule_and_ping "$ipv4_address" "$ipv4_log" "$ipv4_timing"
-            echo -e "\e[1;32mIPv4 successfully installed.\e[0m"
-            ;;
-        2)
-            echo -e "\e[1;33mEnter IPv6 Address:\e[0m"
-            read ipv6_address
-            read -p "Set timing for IPv6 ping (e.g., 1m for 1 minute, 1h for 1 hour, 1d for 1 day, 1M for 1 month): " ipv6_timing
-            schedule_and_ping "$ipv6_address" "$ipv6_log" "$ipv6_timing"
-            echo -e "\e[1;33mIPv6 successfully installed.\e[0m"
-            ;;
-        3)
-            echo -e "\e[1;34mEnter Domain:\e[0m"
-            read domain
-            read -p "Set timing for domain ping (e.g., 1m for 1 minute, 1h for 1 hour, 1d for 1 day, 1M for 1 month): " domain_timing
-            schedule_and_ping "$domain" "$domain_log" "$domain_timing"
-            echo -e "\e[1;34mDomain successfully installed.\e[0m"
-            ;;
-        *)
-            echo -e "\e[1;31mInvalid choice!\e[0m"
-            ;;
-    esac
-    sleep 2
+        case $choice in
+            1)
+                echo -e "\e[1;32mPlease enter your IPv4 address (Example: 8.8.8.8):\e[0m"
+                read ipv4_address
+                read -p "Set timing for IPv4 ping (e.g., 1m for 1 minute, 1h for 1 hour, 1d for 1 day, 1M for 1 month): " ipv4_timing
+                schedule_and_ping "$ipv4_address" "$ipv4_log" "$ipv4_timing"
+                echo -e "\e[1;32mIPv4 successfully installed.\e[0m"
+                ;;
+            2)
+                echo -e "\e[1;33mPlease enter your IPv6 address (Example: 2001:0db8:85a3:0000:0000:8a2e:0370:7334):\e[0m"
+                read ipv6_address
+                read -p "Set timing for IPv6 ping (e.g., 1m for 1 minute, 1h for 1 hour, 1d for 1 day, 1M for 1 month): " ipv6_timing
+                schedule_and_ping_ipv6 "$ipv6_address" "$ipv6_log" "$ipv6_timing"
+                echo -e "\e[1;33mIPv6 (Ping Only) successfully installed.\e[0m"
+                ;;
+            3)
+                echo -e "\e[1;33mExecuting DHClient6 to establish IPv6 connection.\e[0m"
+                dhclient6
+                echo -e "\e[1;33mIPv6 (dhclient6) successfully installed.\e[0m"
+                ;;
+            4)
+                echo -e "\e[1;34mPlease enter your domain (Example: example.com or *.example.com):\e[0m"
+                read domain
+                read -p "Set timing for Domain ping (e.g., 1m for 1 minute, 1h for 1 hour, 1d for 1 day, 1M for 1 month): " domain_timing
+                schedule_and_ping_domain "$domain" "$domain_log" "$domain_timing"
+                echo -e "\e[1;34mDomain successfully installed.\e[0m"
+                ;;
+            5)
+                break
+                ;;
+            *)
+                echo -e "\e[1;31mInvalid choice!\e[0m"
+                ;;
+        esac
+        sleep 2
+    done
 }
 
 # Display logs
@@ -84,7 +124,7 @@ display_logs() {
         echo -e "\e[1;33m2. View IPv6 Logs\e[0m"
         echo -e "\e[1;34m3. View Domain Logs\e[0m"
         echo -e "\e[1;35m4. Search Logs\e[0m"
-        echo -e "\e[1;31m5. Exit\e[0m"
+        echo -e "\e[1;31m5. Back to Previous Menu\e[0m"
         read -p "Please select an option: " log_choice
 
         case $log_choice in
@@ -114,30 +154,36 @@ display_logs() {
 
 # Uninstall function
 uninstall() {
-    clear
-    echo -e "\e[1;35mUninstall:\e[0m"
-    echo -e "\e[1;32m1. Uninstall IPv4\e[0m"
-    echo -e "\e[1;33m2. Uninstall IPv6\e[0m"
-    echo -e "\e[1;34m3. Uninstall Domain\e[0m"
-    read -p "Please select an option to uninstall: " uninstall_choice
+    while true; do
+        clear
+        echo -e "\e[1;35mUninstall:\e[0m"
+        echo -e "\e[1;32m1. Uninstall IPv4\e[0m"
+        echo -e "\e[1;33m2. Uninstall IPv6\e[0m"
+        echo -e "\e[1;34m3. Uninstall Domain\e[0m"
+        echo -e "\e[1;31m4. Back to Previous Menu\e[0m"
+        read -p "Please select an option to uninstall: " uninstall_choice
 
-    case $uninstall_choice in
-        1)
-            rm -i "$ipv4_log"
-            echo -e "\e[1;32mUninstalled successfully!\e[0m"
-            ;;
-        2)
-            rm -i "$ipv6_log"
-            echo -e "\e[1;33mUninstalled successfully!\e[0m"
-            ;;
-        3)
-            rm -i "$domain_log"
-            echo -e "\e[1;34mUninstalled successfully!\e[0m"
-            ;;
-        *)
-            echo -e "\e[1;31mInvalid choice!\e[0m"
-            ;;
-    esac
+        case $uninstall_choice in
+            1)
+                rm -i "$ipv4_log"
+                echo -e "\e[1;32mUninstalled successfully!\e[0m"
+                ;;
+            2)
+                rm -i "$ipv6_log"
+                echo -e "\e[1;33mUninstalled successfully!\e[0m"
+                ;;
+            3)
+                rm -i "$domain_log"
+                echo -e "\e[1;34mUninstalled successfully!\e[0m"
+                ;;
+            4)
+                break
+                ;;
+            *)
+                echo -e "\e[1;31mInvalid choice!\e[0m"
+                ;;
+        esac
+    done
 }
 
 # Main menu
