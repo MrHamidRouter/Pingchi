@@ -7,6 +7,7 @@ This Bash script is designed to automatically resolve IPv6 issues on Linux syste
 ## Features
 - Solving the problem of IPv6 disconnection in Asiatech data center
 - Easy installation and usage
+- Easy Automatically Ping IPv4,IPv6,Domain or Subdomain
 - Periodically checks IPv6 connection and automatically resolves issues
 - Displays system logs In Folder /var/log/ip6/
 
