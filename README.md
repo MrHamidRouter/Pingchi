@@ -12,7 +12,7 @@ This Bash script is designed to automatically resolve IPv6 issues on Linux syste
 
 ## Installation
 
-![Screenshot 2024-02-09 021951](https://github.com/MrHamidRouter/IPv6-AutoFix/assets/155462614/8012f009-316d-4f72-8554-009f906b9cbb)
+![ScreenShot-PingChi](https://github.com/MrHamidRouter/Pingchi/assets/155462614/6a272d83-bfc5-4d7c-baf7-c3399402923e)
 
 ### Please pay close attention when installing the script to avoid any potential issues. As clearly illustrated in the image above.
 
